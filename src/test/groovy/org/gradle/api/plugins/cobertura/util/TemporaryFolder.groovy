@@ -1,4 +1,4 @@
-package com.eriwen.gradle.js.util
+package org.gradle.api.plugins.cobertura.util
 
 import org.apache.commons.lang.StringUtils
 import org.junit.rules.MethodRule

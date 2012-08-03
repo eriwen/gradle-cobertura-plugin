@@ -1,4 +1,4 @@
-package com.eriwen.gradle.js.util
+package org.gradle.api.plugins.cobertura.util
 
 import org.gradle.api.Task;
 

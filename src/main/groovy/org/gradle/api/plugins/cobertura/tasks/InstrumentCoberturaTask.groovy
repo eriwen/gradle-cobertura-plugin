@@ -6,11 +6,11 @@ import org.gradle.api.DefaultTask
 class InstrumentCoberturaTask extends DefaultTask {
     @TaskAction
     def run() {
-        String instrumentationPath = 'TODO'
-        String dataFilePath = 'ALSOTODO'
-        ant.taskdef(resource: 'tasks.properties', classpath: target.configurations.cobertura.asPath)
-        ant.'cobertura-instrument'(toDir: instrumentationPath, datafile: dataFilePath) {
-            if (target.sourceSets.main.output.classesDir.exists()) {
+        ant.taskdef(resource: 'tasks.properties', classpath: project.configurations.cobertura.asPath)
+        ant.'cobertura-instrument'(toDir: project.extensions.cobertura.instrumentationDir,
+                datafile: project.extensions.cobertura.datafile) {
+            // TODO: ignore(regex: "**/*.foo")
+            if (project.sourceSets.main.output.classesDir.exists()) {
                 fileset(dir: project.sourceSets.main.output.classesDir) {
                     include(name: "**/*.class")
                 }

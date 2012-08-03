@@ -1,4 +1,4 @@
-package com.eriwen.gradle.js.util
+package org.gradle.api.plugins.cobertura.util
 
 import spock.lang.Specification
 import org.junit.Rule
