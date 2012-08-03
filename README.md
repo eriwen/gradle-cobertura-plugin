@@ -1,4 +1,4 @@
-# Gradle Cobertura Plugin
+# Gradle Cobertura Plugin [![Build Status](https://buildhive.cloudbees.com/job/Mapvine/job/gradle-cobertura-plugin/badge/icon)](https://buildhive.cloudbees.com/job/Mapvine/job/gradle-cobertura-plugin/)
 Produces code coverage reports for your JVM-based projects using [Cobertura](http://cobertura.sourceforge.net/)
 
 ## Quick Start
