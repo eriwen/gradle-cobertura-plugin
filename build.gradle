@@ -108,10 +108,10 @@ uploadArchives {
  */
 def getPomConfiguration() {
     return {
-        name 'Gradle JS Plugin'
-        packaging 'war'
-        description 'A Gradle plugin for working with JS.'
-        url 'https://github.com/eriwen/gradle-js-plugin'
+        name 'Gradle Cobertura Plugin'
+        packaging 'jar'
+        description 'Gradle plugin for using Cobertura code coverage'
+        url 'https://github.com/Mapvine/gradle-cobertura-plugin'
         licenses {
             license {
                 name 'The Apache Software License, Version 2.0'
@@ -121,15 +121,15 @@ def getPomConfiguration() {
         }
         developers {
             developer {
-                id 'eriwen'
-                name 'Eric Wendelin'
-                email 'emwendelin@gmail.com'
+                id 'mapvine'
+                name 'MapVine'
+                email 'dev@mapvine.com'
             }
         }
         scm {
-            connection 'scm:https://eriwen@github.com/eriwen/gradle-js-plugin'
-            developerConnection 'scm:git@github.com:eriwen/gradle-js-plugin.git'
-            url 'https://github.com/eriwen/gradle-js-plugin'
+            connection 'scm:https://mapvine-dev@github.com/Mapvine/gradle-cobertura-plugin'
+            developerConnection 'scm:git@github.com:Mapvine/gradle-cobertura-plugin.git'
+            url 'https://github.com/Mapvine/gradle-cobertura-plugin'
         }
     }
 }
