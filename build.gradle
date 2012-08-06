@@ -2,6 +2,7 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
+        mavenRepo url: 'https://oss.sonatype.org/content/groups/staging'
     }
     dependencies {
         classpath 'com.mapvine:gradle-cobertura-plugin:0.1.1'
