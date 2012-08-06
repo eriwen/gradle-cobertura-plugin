@@ -1,11 +1,22 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.mapvine:gradle-cobertura-plugin:0.1.1'
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'cobertura'
 apply plugin: 'signing'
 apply plugin: 'idea'
 
 defaultTasks 'clean', 'build'
 
-version = '0.1'
+version = '0.1.1'
 group = 'com.mapvine'
 ext.archivesBaseName = 'gradle-cobertura-plugin'
 ext.isSnapshot = version.endsWith("-SNAPSHOT")
@@ -21,6 +32,12 @@ dependencies {
         exclude module: "junit-dep"
         exclude module: "groovy-all"
     }
+}
+
+cobertura {
+    sourceDirs = sourceSets.main.groovy.srcDirs
+    format = 'html'
+    includes = ['**/*.groovy']
 }
 
 idea.module {

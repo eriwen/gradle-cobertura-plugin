@@ -21,7 +21,7 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         file("src/main/java/p/MyClass.java") << "package p;\nclass MyClass{}"
 
         when:
-        run "test"
+        run "check"
 
         then:
         wasExecuted ":instrumentCobertura"

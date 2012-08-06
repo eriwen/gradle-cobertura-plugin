@@ -22,7 +22,6 @@ class CoberturaPlugin implements Plugin<Project> {
         }
 
         project.tasks.findByName('test').configure {
-            dependsOn 'cobertura'
             systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.datafile)
         }
 
@@ -32,9 +31,17 @@ class CoberturaPlugin implements Plugin<Project> {
     }
 
     void applyTasks(final Project project) {
-        project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
+        project.task('instrumentCobertura', type: InstrumentCoberturaTask,
+                dependsOn: 'compileJava', group: 'Verification',
                 description: 'Instruments classes for Cobertura coverage reports') {}
-        project.task('cobertura', type: CoberturaTask, dependsOn: 'instrumentCobertura',
-                group: 'Verification', description: 'Generate Cobertura coverage report') {}
+        project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
+                group: 'Verification', description: 'Generate Cobertura coverage report') {
+            doLast {
+                project.sourceSets.all {
+                    runtimeClasspath = ext.oldRuntimeClasspath
+                    //runtimeClasspath = runtimeClasspath - project.configurations.cobertura
+                }
+            }
+        }
     }
 }
