@@ -16,8 +16,8 @@ class InstrumentCoberturaTask extends DefaultTask {
                 }
             }
 
-            // FIXME: This is causing Spring unit tests to fail.
             project.sourceSets.all {
+                ext.oldRuntimeClasspath = runtimeClasspath
                 runtimeClasspath = project.configurations.cobertura + runtimeClasspath
             }
         }
