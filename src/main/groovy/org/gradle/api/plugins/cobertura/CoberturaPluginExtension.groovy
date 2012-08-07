@@ -12,16 +12,16 @@ class CoberturaPluginExtension {
     String format = 'html'
     Set<File> sourceDirs
     List<String> includes = ['**/*.java', '**/*.groovy', '**/*.scala']
-    List<String> excludes = []
-    List<String> ignores = []
+    List<String> excludes = ['**/*Test.java', '**/*Test.groovy', '**/*Test.scala']
+    List<String> ignores = ['org.apache.tools.*', 'net.sourceforge.cobertura.*']
 
     Project project
 
     CoberturaPluginExtension(Project project) {
         this.project = project
         dirs = [project.sourceSets.main.output.classesDir.path]
-        datafile = new File("${project.buildDir.path}/cobertura", 'cobertura.ser')
+        datafile = new File("${project.buildDir}/cobertura", 'cobertura.ser')
         reportDir = new File("${project.reporting.baseDir.path}/cobertura")
-        instrumentationDir = "${project.buildDir.path}/instrumented"
+        instrumentationDir = "${project.buildDir}/instrumented"
     }
 }

@@ -26,5 +26,12 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         then:
         wasExecuted ":instrumentCobertura"
         wasExecuted ":cobertura"
+
+        when:
+        run "cobertura"
+
+        then:
+        wasUpToDate ":instrumentCobertura"
+        wasUpToDate ":cobertura"
     }
 }

@@ -3,6 +3,7 @@ package org.gradle.api.plugins.cobertura
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.gradle.api.plugins.cobertura.tasks.*
+import org.gradle.api.tasks.testing.Test
 
 class CoberturaPlugin implements Plugin<Project> {
 
@@ -21,8 +22,11 @@ class CoberturaPlugin implements Plugin<Project> {
             cobertura project.files(project.extensions.cobertura.instrumentationDir)
         }
 
-        project.tasks.findByName('test').configure {
-            systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.datafile)
+        project.tasks.findAll { it instanceof Test }.each {
+            it.configure {
+                dependsOn 'instrumentCobertura'
+                systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.datafile)
+            }
         }
 
         applyTasks(project)
@@ -31,15 +35,17 @@ class CoberturaPlugin implements Plugin<Project> {
     }
 
     void applyTasks(final Project project) {
-        project.task('instrumentCobertura', type: InstrumentCoberturaTask,
-                dependsOn: 'compileJava', group: 'Verification',
-                description: 'Instruments classes for Cobertura coverage reports') {}
+        project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
+                description: 'Instruments classes for Cobertura coverage reports') {
+            inputs.dir project.sourceSets.main.java.srcDirs
+            outputs.dir project.extensions.cobertura.instrumentationDir
+        }
         project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
                 group: 'Verification', description: 'Generate Cobertura coverage report') {
+            outputs.dir project.extensions.cobertura.reportDir
             doLast {
                 project.sourceSets.all {
                     runtimeClasspath = ext.oldRuntimeClasspath
-                    //runtimeClasspath = runtimeClasspath - project.configurations.cobertura
                 }
             }
         }

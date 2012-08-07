@@ -6,16 +6,22 @@ import org.gradle.api.DefaultTask
 class InstrumentCoberturaTask extends DefaultTask {
     @TaskAction
     def run() {
+        final def c = project.extensions.cobertura
         ant.taskdef(resource: 'tasks.properties', classpath: project.configurations.cobertura.asPath)
-        ant.'cobertura-instrument'(toDir: project.extensions.cobertura.instrumentationDir,
-                datafile: project.extensions.cobertura.datafile) {
-            // TODO: ignore(regex: "**/*.foo")
-            if (project.sourceSets.main.output.classesDir.exists()) {
-                fileset(dir: project.sourceSets.main.output.classesDir) {
-                    include(name: "**/*.class")
+        ant.'cobertura-instrument'(toDir: c.instrumentationDir, datafile: c.datafile) {
+
+            // Classes to ignore for instrumentation
+            c.ignores.each { ignore(regex: it) }
+
+            c.dirs.each { dir ->
+                if (project.file(dir).exists()) {
+                    fileset(dir: dir) {
+                        include(name: "**/*.class")
+                    }
                 }
             }
 
+            // Prepend instrumented classes on the runtime classpath
             project.sourceSets.all {
                 ext.oldRuntimeClasspath = runtimeClasspath
                 runtimeClasspath = project.configurations.cobertura + runtimeClasspath
