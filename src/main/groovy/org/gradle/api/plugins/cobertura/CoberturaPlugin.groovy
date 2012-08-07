@@ -37,11 +37,11 @@ class CoberturaPlugin implements Plugin<Project> {
     void applyTasks(final Project project) {
         project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
                 description: 'Instruments classes for Cobertura coverage reports') {
-            inputs.dir project.sourceSets.main.java.srcDirs
-            outputs.dir project.extensions.cobertura.instrumentationDir
+            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.datafile
         }
         project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
                 group: 'Verification', description: 'Generate Cobertura coverage report') {
+            inputs.file project.extensions.cobertura.datafile
             outputs.dir project.extensions.cobertura.reportDir
             doLast {
                 project.sourceSets.all {
