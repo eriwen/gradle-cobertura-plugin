@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.mapvine:gradle-cobertura-plugin:0.1.1'
+        classpath 'com.mapvine:gradle-cobertura-plugin:0.2'
     }
 }
 
@@ -26,8 +26,9 @@ cobertura {
 
 * sourceDirs = Set<File> of directories containing your sources
 * _(Optional)_ format = 'html' (default) or 'xml'
-* _(Optional)_ includes = List<String> glob paths to be analyzed
-* _(Optional)_ excludes = List<String> glob paths to exclude from analysis
+* _(Optional)_ includes = List<String> glob paths to be reported on
+* _(Optional)_ excludes = List<String> glob paths to exclude from reporting
+* _(Optional)_ ignores = List<String> regexes of classes to exclude from instrumentation
 
 ## License
 This plugin is licensed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
