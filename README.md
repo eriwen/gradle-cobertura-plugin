@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.mapvine:gradle-cobertura-plugin:0.2'
+        classpath 'com.mapvine:gradle-cobertura-plugin:0.3'
     }
 }
 
@@ -26,6 +26,7 @@ cobertura {
 
 * sourceDirs = Set<File> of directories containing your sources
 * _(Optional)_ format = 'html' (default) or 'xml'
+* _(Optional)_ reportDir = String or File pointing to a directory to store Cobertura report. Default is `${buildDir}/reports/cobertura`.
 * _(Optional)_ includes = List<String> glob paths to be reported on
 * _(Optional)_ excludes = List<String> glob paths to exclude from reporting
 * _(Optional)_ ignores = List<String> regexes of classes to exclude from instrumentation
