@@ -13,6 +13,9 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         buildFile << """
             sourceSets.main.java.srcDirs = ['src/main/java']
 
+            repositories {
+                mavenCentral()
+            }
             cobertura {
                 sourceDirs = sourceSets.main.java.srcDirs
             }

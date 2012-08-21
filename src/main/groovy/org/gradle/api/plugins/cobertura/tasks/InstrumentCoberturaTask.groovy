@@ -8,7 +8,7 @@ class InstrumentCoberturaTask extends DefaultTask {
     def run() {
         final def c = project.extensions.cobertura
         ant.taskdef(resource: 'tasks.properties', classpath: project.configurations.cobertura.asPath)
-        ant.'cobertura-instrument'(toDir: c.instrumentationDir, datafile: c.datafile) {
+        ant.'cobertura-instrument'(toDir: c.instrumentationDir, datafile: c.datafilePath) {
 
             // Classes to ignore for instrumentation
             c.ignores.each { ignore(regex: it) }

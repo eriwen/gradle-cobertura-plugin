@@ -14,9 +14,6 @@ class CoberturaPlugin implements Plugin<Project> {
         project.configurations {
             cobertura
         }
-        project.repositories {
-            mavenCentral()
-        }
         project.dependencies {
             cobertura 'net.sourceforge.cobertura:cobertura:1.9.4.1'
             cobertura project.files(project.extensions.cobertura.instrumentationDir)
@@ -25,7 +22,7 @@ class CoberturaPlugin implements Plugin<Project> {
         project.tasks.findAll { it instanceof Test }.each {
             it.configure {
                 dependsOn 'instrumentCobertura'
-                systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.datafile)
+                systemProperties.put('net.sourceforge.cobertura.datafilePath', project.extensions.cobertura.datafilePath)
             }
         }
 
@@ -37,12 +34,12 @@ class CoberturaPlugin implements Plugin<Project> {
     void applyTasks(final Project project) {
         project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
                 description: 'Instruments classes for Cobertura coverage reports') {
-            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.datafile
+            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.datafilePath
         }
         project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
                 group: 'Verification', description: 'Generate Cobertura coverage report') {
-            inputs.file project.extensions.cobertura.datafile
-            outputs.dir project.extensions.cobertura.reportDir
+            inputs.file project.file(project.extensions.cobertura.datafilePath)
+            outputs.dir project.file(project.extensions.cobertura.reportDir)
             doLast {
                 project.sourceSets.all {
                     runtimeClasspath = ext.oldRuntimeClasspath

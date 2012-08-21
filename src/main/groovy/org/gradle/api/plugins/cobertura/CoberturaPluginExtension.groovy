@@ -6,8 +6,8 @@ class CoberturaPluginExtension {
     public static final NAME = "cobertura"
 
     List<String> dirs
-    File datafile
-    File reportDir
+    String datafilePath = "${project.buildDir}/cobertura/cobertura.ser"
+    String reportDir = "${project.buildDir}/reports/cobertura"
     String instrumentationDir
     String format = 'html'
     Set<File> sourceDirs
@@ -20,8 +20,6 @@ class CoberturaPluginExtension {
     CoberturaPluginExtension(Project project) {
         this.project = project
         dirs = [project.sourceSets.main.output.classesDir.path]
-        datafile = new File("${project.buildDir}/cobertura", 'cobertura.ser')
-        reportDir = new File("${project.reporting.baseDir.path}/cobertura")
         instrumentationDir = "${project.buildDir}/instrumented"
     }
 }

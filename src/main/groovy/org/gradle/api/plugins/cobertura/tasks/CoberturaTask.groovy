@@ -8,7 +8,7 @@ class CoberturaTask extends DefaultTask {
     def run() {
         final def c = project.extensions.cobertura
         if (c.sourceDirs) {
-            ant.'cobertura-report'(format: c.format, destdir: c.reportDir, datafile: c.datafile) {
+            ant.'cobertura-report'(format: c.format, destdir: c.reportDir, datafile: c.datafilePath) {
                 c.sourceDirs.each { dir ->
                     if (project.file(dir).exists()) {
                         fileset(dir: dir) {
