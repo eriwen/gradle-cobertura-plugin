@@ -22,7 +22,7 @@ class CoberturaPlugin implements Plugin<Project> {
         project.tasks.findAll { it instanceof Test }.each {
             it.configure {
                 dependsOn 'instrumentCobertura'
-                systemProperties.put('net.sourceforge.cobertura.datafilePath', project.extensions.cobertura.datafilePath)
+                systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.serFile)
             }
         }
 
@@ -34,11 +34,11 @@ class CoberturaPlugin implements Plugin<Project> {
     void applyTasks(final Project project) {
         project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
                 description: 'Instruments classes for Cobertura coverage reports') {
-            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.datafilePath
+            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.serFile
         }
         project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
                 group: 'Verification', description: 'Generate Cobertura coverage report') {
-            inputs.file project.file(project.extensions.cobertura.datafilePath)
+            inputs.file project.file(project.extensions.cobertura.serFile)
             outputs.dir project.file(project.extensions.cobertura.reportDir)
             doLast {
                 project.sourceSets.all {

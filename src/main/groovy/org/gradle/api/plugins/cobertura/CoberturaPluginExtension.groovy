@@ -6,9 +6,9 @@ class CoberturaPluginExtension {
     public static final NAME = "cobertura"
 
     List<String> dirs
-    String datafilePath = "${project.buildDir}/cobertura/cobertura.ser"
+    String serFile = "${project.buildDir}/cobertura/cobertura.ser"
     String reportDir = "${project.buildDir}/reports/cobertura"
-    String instrumentationDir
+    String instrumentationDir = "${project.buildDir}/instrumented"
     String format = 'html'
     Set<File> sourceDirs
     List<String> includes = ['**/*.java', '**/*.groovy', '**/*.scala']
@@ -20,6 +20,5 @@ class CoberturaPluginExtension {
     CoberturaPluginExtension(Project project) {
         this.project = project
         dirs = [project.sourceSets.main.output.classesDir.path]
-        instrumentationDir = "${project.buildDir}/instrumented"
     }
 }
