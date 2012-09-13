@@ -19,11 +19,9 @@ class CoberturaPlugin implements Plugin<Project> {
             cobertura project.files(project.extensions.cobertura.instrumentationDir)
         }
 
-        project.tasks.findAll { it instanceof Test }.each {
-            it.configure {
-                dependsOn 'instrumentCobertura'
-                systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.serFile)
-            }
+        project.tasks.withType(Test) {
+            dependsOn 'instrumentCobertura'
+            systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.serFile)
         }
 
         applyTasks(project)
