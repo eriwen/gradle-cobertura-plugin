@@ -44,7 +44,16 @@ class CoberturaPluginExtension {
 
         FileCollection originalClasspath = testTask.classpath
         testTask.conventionMapping.with {
-            map("classpath") { originalClasspath - sourceSet.output + sourceSetExtension.output + sourceSetExtension.coberturaClasspath }
+            map("classpath") {
+                // Remove the uninstrumented classfiles
+                def minusUninstrumented = originalClasspath - sourceSet.output
+                def plusInstrumented = minusUninstrumented + sourceSetExtension.output
+
+                // Add the uninstrumented class files (after) to cover class files that weren't instrumented (e.g. interfaces)
+                def plusInstrumentedThenUninstrumented = plusInstrumented + sourceSet.output
+
+                plusInstrumentedThenUninstrumented + sourceSetExtension.coberturaClasspath
+            }
         }
 
         def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaTask)
