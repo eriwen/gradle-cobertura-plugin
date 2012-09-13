@@ -2,10 +2,11 @@ package org.gradle.api.plugins.cobertura
 
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.plugins.cobertura.internal.LazyString
 import org.gradle.api.plugins.cobertura.tasks.CoberturaTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.testing.Test
-import java.util.concurrent.Callable
 
 class CoberturaPluginExtension {
     public static final NAME = "cobertura"
@@ -29,9 +30,14 @@ class CoberturaPluginExtension {
     void addCoverage(Test testTask, SourceSet sourceSet) {
         CoberturaSourceSetExtension sourceSetExtension = sourceSet.cobertura
 
-        def deferredProperty = new LazyString("${->sourceSetExtension.serFile}")
+        def taskExtension = testTask.extensions.create("cobertura", CoberturaTestTaskExtension)
+        ConventionMapping taskExtensionConventionMapping = taskExtension.conventionMapping
+        taskExtensionConventionMapping.with {
+            map("inputSerFile") { sourceSetExtension.serFile }
+            map("outputSerFile") { new File(sourceSetExtension.serFile.absolutePath[0..-5]  + "-test.ser") }
+        }
 
-        testTask.systemProperties.put('net.sourceforge.cobertura.datafile', deferredProperty)
+        testTask.systemProperties.put('net.sourceforge.cobertura.datafile', new LazyString("${->taskExtension.getOutputSerFile()}"))
         FileCollection originalClasspath = testTask.classpath
         testTask.conventionMapping.with {
             map("classpath") { originalClasspath - sourceSet.output + sourceSetExtension.output + sourceSetExtension.coberturaClasspath }
@@ -44,44 +50,20 @@ class CoberturaPluginExtension {
             map("excludes") { getExcludes() as Set }
             map("format") { getFormat() }
             map("reportDir") { new File(getReportsDir(), sourceSet.name) }
-            map("serFile") { sourceSetExtension.getSerFile() }
+            map("serFile") { taskExtension.getOutputSerFile() }
+            map("coberturaClasspath") { sourceSetExtension.getCoberturaClasspath() }
+        }
+
+        testTask.inputs.files({ taskExtension.getInputSerFile() })
+        testTask.doFirst {
+            testTask.project.copy {
+                from taskExtension.getInputSerFile()
+                into taskExtension.getOutputSerFile().parentFile
+                rename ".*", taskExtension.getOutputSerFile().name
+            }
         }
     }
 
-    private static class LazyString implements Serializable {
-        private value
 
-        LazyString(value) {
-            this.value = value
-        }
-
-        @Override
-        String toString() {
-            value.toString()
-        }
-
-        private void writeObject(ObjectOutputStream out) throws IOException {
-            out.writeObject(toString())
-        }
-
-        private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
-            value = input.readObject()
-        }
-
-        boolean equals(o) {
-            if (this.is(o)) return true
-            if (getClass() != o.class) return false
-
-            LazyString that = (LazyString) o
-
-            if (value != that.value) return false
-
-            return true
-        }
-
-        int hashCode() {
-            return (value != null ? value.hashCode() : 0)
-        }
-    }
 
 }
