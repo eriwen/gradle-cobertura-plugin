@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.mapvine:gradle-cobertura-plugin:0.3.1'
+        classpath 'com.mapvine:gradle-cobertura-plugin:1.0'
     }
 }
 
