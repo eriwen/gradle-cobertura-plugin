@@ -3,7 +3,6 @@ package org.gradle.api.plugins.cobertura
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.plugins.cobertura.internal.LazyString
 import org.gradle.api.plugins.cobertura.tasks.CoberturaTask
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.testing.Test
@@ -37,7 +36,12 @@ class CoberturaPluginExtension {
             map("outputSerFile") { new File(sourceSetExtension.serFile.absolutePath[0..-5]  + "-test.ser") }
         }
 
-        testTask.systemProperties.put('net.sourceforge.cobertura.datafile', new LazyString("${->taskExtension.getOutputSerFile()}"))
+        def configureTask = project.tasks.add("coberturaConfigure${testTask.name.capitalize()}")
+        configureTask.doFirst {
+            testTask.systemProperty('net.sourceforge.cobertura.datafile', taskExtension.getOutputSerFile().absolutePath)
+        }
+        testTask.dependsOn(configureTask)
+
         FileCollection originalClasspath = testTask.classpath
         testTask.conventionMapping.with {
             map("classpath") { originalClasspath - sourceSet.output + sourceSetExtension.output + sourceSetExtension.coberturaClasspath }
