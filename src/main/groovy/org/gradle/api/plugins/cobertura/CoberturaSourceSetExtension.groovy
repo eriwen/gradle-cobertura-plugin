@@ -17,8 +17,4 @@ class CoberturaSourceSetExtension {
     File serFile
     List<String> ignores
 
-    FileCollection getRuntimeClasspath() {
-        sourceSet.runtimeClasspath - sourceSet.output + getOutput() + getCoberturaClasspath()
-    }
-
 }

@@ -32,9 +32,9 @@ class CoberturaPluginExtension {
         def deferredProperty = new LazyString("${->sourceSetExtension.serFile}")
 
         testTask.systemProperties.put('net.sourceforge.cobertura.datafile', deferredProperty)
+        FileCollection originalClasspath = testTask.classpath
         testTask.conventionMapping.with {
-            map("classpath") { sourceSetExtension.runtimeClasspath }
-            map("testClassesDir") { sourceSetExtension.classesDir }
+            map("classpath") { originalClasspath - sourceSet.output + sourceSetExtension.output + sourceSetExtension.coberturaClasspath }
         }
 
         def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaTask)
