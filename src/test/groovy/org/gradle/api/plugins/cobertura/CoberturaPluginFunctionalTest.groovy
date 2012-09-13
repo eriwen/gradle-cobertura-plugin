@@ -11,13 +11,10 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
     def "tasks operation"() {
         given:
         buildFile << """
-            sourceSets.main.java.srcDirs = ['src/main/java']
+            apply plugin: "java"
 
             repositories {
                 mavenCentral()
-            }
-            cobertura {
-                sourceDirs = sourceSets.main.java.srcDirs
             }
         """
         and:
@@ -27,14 +24,14 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         run "check"
 
         then:
-        wasExecuted ":instrumentCobertura"
-        wasExecuted ":cobertura"
+        wasExecuted ":testCoberturaReport"
+        wasExecuted ":coberturaInstrumentMain"
 
         when:
-        run "cobertura"
+        run "check"
 
         then:
-        wasUpToDate ":instrumentCobertura"
-        wasUpToDate ":cobertura"
+        wasUpToDate ":testCoberturaReport"
+        wasUpToDate ":coberturaInstrumentMain"
     }
 }

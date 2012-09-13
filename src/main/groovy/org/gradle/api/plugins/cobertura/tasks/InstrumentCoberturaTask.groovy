@@ -1,31 +1,38 @@
 package org.gradle.api.plugins.cobertura.tasks
 
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.*
 
-class InstrumentCoberturaTask extends DefaultTask {
+class InstrumentCoberturaTask extends SourceTask {
+
+    @InputFiles
+    FileCollection coberturaClasspath
+
+    @OutputDirectory
+    File classesDir
+
+    @OutputFile
+    File serFile
+
+    @Input
+    List<String> ignores
+
     @TaskAction
     def run() {
-        final def c = project.extensions.cobertura
-        ant.taskdef(resource: 'tasks.properties', classpath: project.configurations.cobertura.asPath)
-        ant.'cobertura-instrument'(toDir: c.instrumentationDir, datafile: c.serFile) {
+        ant.taskdef(resource: 'tasks.properties', classpath: getCoberturaClasspath().asPath)
+        ant.'cobertura-instrument'(toDir: getClassesDir(), datafile: getSerFile()) {
+            getIgnores().each { ignore(regex: it) }
+            getSourceClassFiles().addToAntBuilder(delegate, "fileset", FileCollection.AntType.FileSet)
+        }
+    }
 
-            // Classes to ignore for instrumentation
-            c.ignores.each { ignore(regex: it) }
+    protected FileCollection getSourceClassFiles() {
+        getSource().filter { File it -> it.name.endsWith(".class") }
+    }
 
-            c.dirs.each { dir ->
-                if (project.file(dir).exists()) {
-                    fileset(dir: dir) {
-                        include(name: "**/*.class")
-                    }
-                }
-            }
-
-            // Prepend instrumented classes on the runtime classpath
-            project.sourceSets.all {
-                ext.oldRuntimeClasspath = runtimeClasspath
-                runtimeClasspath = project.configurations.cobertura + runtimeClasspath
-            }
+    FileCollection getInstrumentedClassFiles() {
+        project.files({ getClassesDir() }) {
+            builtBy this
         }
     }
 }

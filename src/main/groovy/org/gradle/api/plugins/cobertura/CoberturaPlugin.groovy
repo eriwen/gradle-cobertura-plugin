@@ -1,48 +1,81 @@
 package org.gradle.api.plugins.cobertura
 
-import org.gradle.api.Project
 import org.gradle.api.Plugin
-import org.gradle.api.plugins.cobertura.tasks.*
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.execution.TaskExecutionListener
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.ReportingBasePlugin
+import org.gradle.api.plugins.cobertura.tasks.CoberturaTask
+import org.gradle.api.plugins.cobertura.tasks.InstrumentCoberturaTask
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskState
 import org.gradle.api.tasks.testing.Test
+import org.gradle.api.reporting.ReportingExtension
+import org.gradle.api.plugins.JavaBasePlugin
 
 class CoberturaPlugin implements Plugin<Project> {
 
     void apply(final Project project) {
-        project.apply(plugin: 'java')
-        project.extensions.create(CoberturaPluginExtension.NAME, CoberturaPluginExtension, project)
+        project.apply(plugin: ReportingBasePlugin)
+        project.apply(plugin: JavaBasePlugin)
 
-        project.configurations {
-            cobertura
+        def reportingExtension = project.extensions.getByType(ReportingExtension)
+        def extension = project.extensions.create(CoberturaPluginExtension.NAME, CoberturaPluginExtension, project)
+
+        // Base for all reports
+        extension.conventionMapping.map("reportsDir") { reportingExtension.file("cobertura") }
+
+        Configuration coberturaClasspath = project.configurations.add("cobertura")
+        Dependency coberturaDependency = project.dependencies.create('net.sourceforge.cobertura:cobertura:1.9.4.1')
+        coberturaClasspath.dependencies.add(coberturaDependency)
+        extension.classpath = coberturaClasspath
+
+        SourceSetContainer sourceSets = project.sourceSets
+        sourceSets.all { SourceSet sourceSet ->
+            addInstrumentation(project, extension, sourceSet)
         }
-        project.dependencies {
-            cobertura 'net.sourceforge.cobertura:cobertura:1.9.4.1'
-            cobertura project.files(project.extensions.cobertura.instrumentationDir)
+
+        // Check produces all cobertura reports
+        project.tasks.getByName("check").dependsOn(project.tasks.withType(CoberturaTask))
+
+        // Go ahead and wire the conventional test task up, if we are being used with the java plugin
+        project.plugins.withType(JavaPlugin) {
+            Test testTask = project.test
+            SourceSet mainSourceSet = project.sourceSets.main
+            extension.addCoverage(testTask, mainSourceSet)
         }
-
-        project.tasks.withType(Test) {
-            dependsOn 'instrumentCobertura'
-            systemProperties.put('net.sourceforge.cobertura.datafile', project.extensions.cobertura.serFile)
-        }
-
-        applyTasks(project)
-
-        project.tasks.findByName('check').dependsOn 'cobertura'
     }
 
-    void applyTasks(final Project project) {
-        project.task('instrumentCobertura', type: InstrumentCoberturaTask, group: 'Verification',
-                description: 'Instruments classes for Cobertura coverage reports') {
-            outputs.files project.extensions.cobertura.instrumentationDir, project.extensions.cobertura.serFile
+    private void addInstrumentation(Project project, CoberturaPluginExtension projectExtension, SourceSet sourceSet) {
+        // Extend the source set with cobertura stuff
+        CoberturaSourceSetExtension sourceSetExtension = sourceSet.extensions.create("cobertura", CoberturaSourceSetExtension, sourceSet)
+        ConventionMapping sourceSetConventionMapping = sourceSetExtension.conventionMapping
+        sourceSetConventionMapping.with {
+            map("coberturaClasspath") { projectExtension.classpath }
+            map("coberturaClasspath") { projectExtension.classpath }
+            map("serFile") { project.file("$project.buildDir/cobertura/$sourceSet.name/cobertura.ser") }
+            map("classesDir") { project.file("$project.buildDir/cobertura/$sourceSet.name/classes") }
+            map("ignores") { projectExtension.getIgnores() }
         }
-        project.task('cobertura', type: CoberturaTask, dependsOn: ['instrumentCobertura', 'test'],
-                group: 'Verification', description: 'Generate Cobertura coverage report') {
-            inputs.file project.file(project.extensions.cobertura.serFile)
-            outputs.dir project.file(project.extensions.cobertura.reportDir)
-            doLast {
-                project.sourceSets.all {
-                    runtimeClasspath = ext.oldRuntimeClasspath
-                }
-            }
+
+        // Create a task to instrument this source set, wired to the extension
+        InstrumentCoberturaTask task = project.tasks.add(sourceSet.getTaskName("coberturaInstrument", null), InstrumentCoberturaTask)
+        task.group = "Verification"
+        task.description = "Instruments classes for the '${sourceSet.name}' source set"
+        task.source { sourceSet.output }
+        task.conventionMapping.with {
+            map("coberturaClasspath") { sourceSetExtension.getCoberturaClasspath() }
+            map("serFile") { sourceSetExtension.getSerFile() }
+            map("classesDir") { sourceSetExtension.getClassesDir() }
+            map("ignores") { sourceSetExtension.getIgnores() }
         }
+
+        // wire the output of the task to the extension
+        sourceSetConventionMapping.map("output") { task.getInstrumentedClassFiles() }
     }
 }
