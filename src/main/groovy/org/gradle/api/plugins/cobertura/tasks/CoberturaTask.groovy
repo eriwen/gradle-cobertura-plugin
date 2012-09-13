@@ -1,21 +1,32 @@
 package org.gradle.api.plugins.cobertura.tasks
 
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.project.IsolatedAntBuilder
+import org.gradle.api.tasks.*
 
-class CoberturaTask extends DefaultTask {
+class CoberturaTask extends SourceTask {
+
+    @Input
+    String format
+
+    @OutputDirectory
+    File reportDir
+
+    @InputFile
+    File serFile
+
+    @InputFiles
+    FileCollection coberturaClasspath
+
     @TaskAction
     def run() {
-        final def c = project.extensions.cobertura
-        if (c.sourceDirs) {
-            ant.'cobertura-report'(format: c.format, destdir: c.reportDir, datafile: c.serFile) {
-                c.sourceDirs.each { dir ->
-                    if (project.file(dir).exists()) {
-                        fileset(dir: dir) {
-                            c.includes.each { include(name: it) }
-                            c.excludes.each { exclude(name: it) }
-                        }
-                    }
+        def source = getSource()
+        if (!source.empty) {
+            def ant = getServices().get(IsolatedAntBuilder).withClasspath(getCoberturaClasspath())
+            ant.execute {
+                taskdef(name: 'cobertura-report', classname: "net.sourceforge.cobertura.ant.ReportTask")
+                'cobertura-report'(format: getFormat(), destdir: getReportDir(), datafile: getSerFile()) {
+                    getSource().addToAntBuilder(delegate, "fileset", FileCollection.AntType.FileSet)
                 }
             }
         } else {

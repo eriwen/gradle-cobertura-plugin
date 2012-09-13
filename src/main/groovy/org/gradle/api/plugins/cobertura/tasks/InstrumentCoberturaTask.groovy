@@ -1,31 +1,44 @@
 package org.gradle.api.plugins.cobertura.tasks
 
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.DefaultTask
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.*
+import org.gradle.api.internal.project.IsolatedAntBuilder
 
-class InstrumentCoberturaTask extends DefaultTask {
+class InstrumentCoberturaTask extends SourceTask {
+
+    @InputFiles
+    FileCollection coberturaClasspath
+
+    @OutputDirectory
+    File classesDir
+
+    @OutputFile
+    File serFile
+
+    @Input
+    List<String> ignores
+
     @TaskAction
     def run() {
-        final def c = project.extensions.cobertura
-        ant.taskdef(resource: 'tasks.properties', classpath: project.configurations.cobertura.asPath)
-        ant.'cobertura-instrument'(toDir: c.instrumentationDir, datafile: c.serFile) {
-
-            // Classes to ignore for instrumentation
-            c.ignores.each { ignore(regex: it) }
-
-            c.dirs.each { dir ->
-                if (project.file(dir).exists()) {
-                    fileset(dir: dir) {
-                        include(name: "**/*.class")
-                    }
-                }
+        def ant = getServices().get(IsolatedAntBuilder).withClasspath(getCoberturaClasspath())
+        ant.execute {
+            taskdef(name: 'cobertura-instrument', classname: "net.sourceforge.cobertura.ant.InstrumentTask")
+            'cobertura-instrument'(toDir: getClassesDir(), datafile: getSerFile()) {
+                getIgnores().each { ignore(regex: it) }
+                getSourceClassFiles().addToAntBuilder(delegate, "fileset", FileCollection.AntType.FileSet)
             }
+        }
 
-            // Prepend instrumented classes on the runtime classpath
-            project.sourceSets.all {
-                ext.oldRuntimeClasspath = runtimeClasspath
-                runtimeClasspath = project.configurations.cobertura + runtimeClasspath
-            }
+//
+    }
+
+    protected FileCollection getSourceClassFiles() {
+        getSource().filter { File it -> it.name.endsWith(".class") }
+    }
+
+    FileCollection getInstrumentedClassFiles() {
+        project.files({ getClassesDir() }) {
+            builtBy this
         }
     }
 }
