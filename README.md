@@ -16,7 +16,6 @@ buildscript {
 apply plugin: 'cobertura'
 
 cobertura {
-    sourceDirs = sourceSets.main.groovy.srcDirs
     format = 'xml'
     includes = ['**/*.java', '**/*.groovy']
 }
@@ -24,14 +23,14 @@ cobertura {
 
 ## Configuration
 
-* sourceDirs = Set<File> of directories containing your sources
 * _(Optional)_ format = 'html' (default) or 'xml'
-* _(Optional)_ reportDir = String or File pointing to a directory to store Cobertura report. Default is `${buildDir}/reports/cobertura`.
-* _(Optional)_ instrumentationDir = String or File pointing to where instrumented classes should be put. Default is `${buildDir}/instrmented`.
-* _(Optional)_ serFile = String or File where the cobertura.ser file should reside. Default is `${buildDir}/cobertura/cobertura.ser`.
 * _(Optional)_ includes = List<String> glob paths to be reported on
 * _(Optional)_ excludes = List<String> glob paths to exclude from reporting
 * _(Optional)_ ignores = List<String> regexes of classes to exclude from instrumentation
+
+### With `java` plugin
+
+When using in conjunction with the Java plugin, the `test` task is preconfigured for code coverage analysis. To generate the coverage report, run the `testCoberturaReport` task.
 
 ## License
 This plugin is licensed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
