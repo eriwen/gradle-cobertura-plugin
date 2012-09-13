@@ -55,6 +55,7 @@ class CoberturaPluginExtension {
         }
 
         testTask.inputs.files({ taskExtension.getInputSerFile() })
+        testTask.outputs.files({ taskExtension.getOutputSerFile() })
         testTask.doFirst {
             testTask.project.copy {
                 from taskExtension.getInputSerFile()
