@@ -63,4 +63,41 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         wasUpToDate ":test"
         wasUpToDate ":testCoberturaReport"
     }
+
+    def "does not conflict with Gradle - due to use of asm"() {
+        given:
+        buildFile << """
+            apply plugin: "groovy"
+
+            repositories {
+                mavenCentral()
+            }
+
+            dependencies {
+                compile gradleApi()
+                groovy localGroovy()
+            }
+        """
+
+        file("src/test/groovy/GradleCodeTest.groovy") << """
+            import org.gradle.api.Project;
+            import org.gradle.testfixtures.ProjectBuilder;
+            import org.junit.Test;
+
+            class GradleCodeTest {
+
+                @Test
+                void applyPlugin() {
+                    def project = ProjectBuilder.builder().withName("testProject").build()
+                    project.apply(plugin: "java")
+                }
+            }
+        """
+
+        when:
+        run "check"
+
+        then:
+        wasExecuted ":coberturaInstrumentMain"
+    }
 }
