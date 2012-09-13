@@ -100,4 +100,58 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         then:
         wasExecuted ":coberturaInstrumentMain"
     }
+
+    def "handles interfaces properly"() {
+        given:
+        buildFile << """
+            apply plugin: "groovy"
+
+            repositories {
+                mavenCentral()
+            }
+
+            dependencies {
+                testCompile "junit:junit:4.10"
+                groovy localGroovy()
+            }
+        """
+
+        and:
+        file("src/main/groovy/p/MyInterface.groovy") << """
+        package p
+        interface MyInterface {
+            Boolean passesTest()
+        }
+        """
+
+        and:
+        file("src/main/groovy/p/MyClass.groovy") << """
+        package p
+        class MyClass implements MyInterface {
+            Boolean passesTest() {
+               return (Math.random() <= 1)
+            }
+        }
+        """
+
+        file("src/test/groovy/p/MyClassTest.groovy") << """
+            package p
+            import org.junit.Test
+
+            class MyClassTest {
+
+                @Test
+                void passesTest() {
+                    def myClass = new MyClass()
+                    assert myClass.passesTest() == true
+                }
+            }
+        """
+
+        when:
+        run "test"
+
+        then:
+        notThrown ClassNotFoundException
+    }
 }
