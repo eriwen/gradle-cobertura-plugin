@@ -6,7 +6,7 @@ apply plugin: 'idea'
 defaultTasks 'clean', 'build'
 
 version = '1.0'
-group = 'com.mapvine'
+group = 'com.eriwen'
 ext.archivesBaseName = 'gradle-cobertura-plugin'
 ext.isSnapshot = version.endsWith("-SNAPSHOT")
 
@@ -111,7 +111,7 @@ def getPomConfiguration() {
         name 'Gradle Cobertura Plugin'
         packaging 'jar'
         description 'Gradle plugin for using Cobertura code coverage'
-        url 'https://github.com/Mapvine/gradle-cobertura-plugin'
+        url 'https://github.com/eriwen/gradle-cobertura-plugin'
         licenses {
             license {
                 name 'The Apache Software License, Version 2.0'
@@ -121,15 +121,15 @@ def getPomConfiguration() {
         }
         developers {
             developer {
-                id 'mapvine'
-                name 'MapVine'
-                email 'dev@mapvine.com'
+                id 'eriwen'
+                name 'Eric Wendelin'
+                email 'me@eriwen.com'
             }
         }
         scm {
-            connection 'scm:https://mapvine-dev@github.com/Mapvine/gradle-cobertura-plugin'
-            developerConnection 'scm:git@github.com:Mapvine/gradle-cobertura-plugin.git'
-            url 'https://github.com/Mapvine/gradle-cobertura-plugin'
+            connection 'scm:https://eriwen@github.com/eriwen/gradle-cobertura-plugin'
+            developerConnection 'scm:git@github.com:eriwen/gradle-cobertura-plugin.git'
+            url 'https://github.com/eriwen/gradle-cobertura-plugin'
         }
     }
 }
