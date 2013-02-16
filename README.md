@@ -1,4 +1,4 @@
-# Gradle Cobertura Plugin [![Build Status](https://buildhive.cloudbees.com/job/eriwen/job/gradle-cobertura-plugin/badge/icon)](https://buildhive.cloudbees.com/job/eriwen/job/gradle-cobertura-plugin/)
+# Gradle Cobertura Plugin [![Build Status](https://secure.travis-ci.org/eriwen/gradle-cobertura-plugin.png)](http://travis-ci.org/eriwen/gradle-cobertura-plugin)
 Produces code coverage reports for your JVM-based projects using [Cobertura](http://cobertura.sourceforge.net/)
 
 ## Quick Start
