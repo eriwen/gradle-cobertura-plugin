@@ -54,7 +54,6 @@ class CoberturaPlugin implements Plugin<Project> {
         ConventionMapping sourceSetConventionMapping = sourceSetExtension.conventionMapping
         sourceSetConventionMapping.with {
             map("coberturaClasspath") { projectExtension.classpath }
-            map("coberturaClasspath") { projectExtension.classpath }
             map("serFile") { project.file("$project.buildDir/cobertura/$sourceSet.name/cobertura.ser") }
             map("classesDir") { project.file("$project.buildDir/cobertura/$sourceSet.name/classes") }
             map("ignores") { projectExtension.getIgnores() }
