@@ -57,8 +57,9 @@ class CoberturaPluginExtension {
         }
 
         def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaTask)
+        coberturaTask.source { sourceSet.allSource }
+
         coberturaTask.conventionMapping.with {
-            map("source") { sourceSet.allSource }
             map("includes") { getIncludes() as Set }
             map("excludes") { getExcludes() as Set }
             map("format") { getFormat() }

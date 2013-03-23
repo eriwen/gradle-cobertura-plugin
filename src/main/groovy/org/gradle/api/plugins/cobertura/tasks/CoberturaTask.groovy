@@ -22,6 +22,9 @@ class CoberturaTask extends SourceTask {
     def run() {
         def source = getSource()
         if (!source.empty) {
+            setIncludes(getIncludes())
+            setExcludes(getExcludes())
+
             def ant = getServices().get(IsolatedAntBuilder).withClasspath(getCoberturaClasspath())
             ant.execute {
                 taskdef(name: 'cobertura-report', classname: "net.sourceforge.cobertura.ant.ReportTask")
@@ -30,7 +33,7 @@ class CoberturaTask extends SourceTask {
                 }
             }
         } else {
-            logger.warn 'Cobertura cannot run becuase no source directories were found.'
+            logger.warn 'Cobertura cannot run because no source directories were found.'
         }
     }
 }
