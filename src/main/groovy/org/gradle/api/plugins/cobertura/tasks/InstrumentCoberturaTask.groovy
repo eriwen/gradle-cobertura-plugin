@@ -28,11 +28,10 @@ class InstrumentCoberturaTask extends SourceTask {
                 getSourceClassFiles().addToAntBuilder(delegate, "fileset", FileCollection.AntType.FileSet)
             }
         }
-
-//
     }
 
     protected FileCollection getSourceClassFiles() {
+        setExcludes(getExcludes())
         getSource().filter { File it -> it.name.endsWith(".class") }
     }
 
