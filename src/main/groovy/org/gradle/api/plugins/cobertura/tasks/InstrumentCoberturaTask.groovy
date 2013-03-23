@@ -32,7 +32,7 @@ class InstrumentCoberturaTask extends SourceTask {
 
     protected FileCollection getSourceClassFiles() {
         setExcludes(getExcludes())
-        getSource().filter { File it -> it.name.endsWith(".class") }
+        getSource().filter { File f -> f.name.endsWith(".class") }
     }
 
     FileCollection getInstrumentedClassFiles() {

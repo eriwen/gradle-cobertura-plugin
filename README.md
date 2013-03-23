@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.eriwen:gradle-cobertura-plugin:1.0'
+        classpath 'com.eriwen:gradle-cobertura-plugin:1.1.0'
     }
 }
 
@@ -18,6 +18,7 @@ apply plugin: 'cobertura'
 cobertura {
     format = 'xml'
     includes = ['**/*.java', '**/*.groovy']
+    excludes = ['com/thirdparty/**/*.*']
 }
 ```
 
