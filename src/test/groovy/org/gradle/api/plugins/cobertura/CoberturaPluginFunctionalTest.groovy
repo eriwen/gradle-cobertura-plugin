@@ -26,11 +26,9 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         package p;
 
         public class MyClass {
-
             public void someMethod() {
                 int a = 1 + 1;
             }
-
         }
         """
 
@@ -38,12 +36,10 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
         package p;
 
         public class MyClassTest {
-
             @org.junit.Test
             public void someMethod() {
                 new MyClass().someMethod();
             }
-
         }
         """
 
@@ -85,7 +81,6 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
             import org.junit.Test;
 
             class GradleCodeTest {
-
                 @Test
                 void applyPlugin() {
                     def project = ProjectBuilder.builder().withName("testProject").build()
@@ -139,61 +134,6 @@ class CoberturaPluginFunctionalTest extends FunctionalSpec {
             import org.junit.Test
 
             class MyClassTest {
-
-                @Test
-                void passesTest() {
-                    def myClass = new MyClass()
-                    assert myClass.passesTest() == true
-                }
-            }
-        """
-
-        when:
-        run "test"
-
-        then:
-        notThrown ClassNotFoundException
-    }
-
-    def "handles interfaces properly"() {
-        given:
-        buildFile << """
-            apply plugin: "groovy"
-
-            repositories {
-                mavenCentral()
-            }
-
-            dependencies {
-                testCompile "junit:junit:4.10"
-                groovy localGroovy()
-            }
-        """
-
-        and:
-        file("src/main/groovy/p/MyInterface.groovy") << """
-        package p
-        interface MyInterface {
-            Boolean passesTest()
-        }
-        """
-
-        and:
-        file("src/main/groovy/p/MyClass.groovy") << """
-        package p
-        class MyClass implements MyInterface {
-            Boolean passesTest() {
-               return (Math.random() <= 1)
-            }
-        }
-        """
-
-        file("src/test/groovy/p/MyClassTest.groovy") << """
-            package p
-            import org.junit.Test
-
-            class MyClassTest {
-
                 @Test
                 void passesTest() {
                     def myClass = new MyClass()

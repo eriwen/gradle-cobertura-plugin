@@ -3,12 +3,16 @@ package org.gradle.api.plugins.cobertura
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.plugins.cobertura.tasks.CoberturaTask
+import org.gradle.api.plugins.cobertura.tasks.CoberturaReportTask
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.testing.Test
+import org.gradle.process.JavaForkOptions
 
 class CoberturaPluginExtension {
     public static final NAME = "cobertura"
+
+    String toolVersion = '1.9.4.1'
 
     FileCollection classpath
 
@@ -26,7 +30,13 @@ class CoberturaPluginExtension {
         this.project = project
     }
 
-    void addCoverage(Test testTask, SourceSet sourceSet) {
+    void applyTo(final TaskCollection tasks, final SourceSet sourceSet) {
+        tasks.withType(JavaForkOptions) {
+            applyTo(it, sourceSet)
+        }
+    }
+
+    void applyTo(final Test testTask, final SourceSet sourceSet) {
         CoberturaSourceSetExtension sourceSetExtension = sourceSet.cobertura
 
         def taskExtension = testTask.extensions.create("cobertura", CoberturaTestTaskExtension)
@@ -56,7 +66,7 @@ class CoberturaPluginExtension {
             }
         }
 
-        def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaTask)
+        def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaReportTask)
         coberturaTask.source { sourceSet.allSource }
 
         coberturaTask.conventionMapping.with {

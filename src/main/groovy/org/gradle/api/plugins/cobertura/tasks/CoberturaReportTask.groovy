@@ -4,7 +4,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.project.IsolatedAntBuilder
 import org.gradle.api.tasks.*
 
-class CoberturaTask extends SourceTask {
+class CoberturaReportTask extends CoberturaBaseTask {
 
     @Input
     String format
@@ -14,9 +14,6 @@ class CoberturaTask extends SourceTask {
 
     @InputFile
     File serFile
-
-    @InputFiles
-    FileCollection coberturaClasspath
 
     @TaskAction
     def run() {

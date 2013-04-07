@@ -8,7 +8,8 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.ReportingBasePlugin
-import org.gradle.api.plugins.cobertura.tasks.CoberturaTask
+import org.gradle.api.plugins.cobertura.tasks.CoberturaBaseTask
+import org.gradle.api.plugins.cobertura.tasks.CoberturaReportTask
 import org.gradle.api.plugins.cobertura.tasks.InstrumentCoberturaTask
 import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.SourceSet
@@ -16,6 +17,8 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
 
 class CoberturaPlugin implements Plugin<Project> {
+
+    private static final String ANT_CONFIGURATION_NAME = 'cobertura'
 
     void apply(final Project project) {
         project.apply(plugin: ReportingBasePlugin)
@@ -38,20 +41,42 @@ class CoberturaPlugin implements Plugin<Project> {
         }
 
         // Check produces all cobertura reports
-        project.tasks.getByName("check").dependsOn(project.tasks.withType(CoberturaTask))
+        project.tasks.getByName("check").dependsOn(project.tasks.withType(CoberturaReportTask))
 
         // Go ahead and wire the conventional test task up, if we are being used with the java plugin
         project.plugins.withType(JavaPlugin) {
             Test testTask = project.test
             SourceSet mainSourceSet = project.sourceSets.main
-            extension.addCoverage(testTask, mainSourceSet)
+            extension.applyTo(testTask, mainSourceSet)
+        }
+    }
+
+    private void configureDefaultDependencies(final Project project, final CoberturaPluginExtension extension) {
+        project.dependencies {
+            coberturaAnt "net.sourceforge.cobertura:cobertura:${extension.toolVersion}"
+        }
+    }
+
+    /**
+     * Applies cobertura coverage to Test tasks.
+     * @param project the project with the tasks to configure
+     * @param extension cobertura plugin extension
+     */
+    private void applyToDefaultTasks(final Project project, final CoberturaPluginExtension extension) {
+        final SourceSet mainSourceSet = project.sourceSets.main
+        extension.applyTo(project.tasks.withType(Test), mainSourceSet)
+    }
+
+    private void configureTaskClasspaths(final Project project) {
+        project.tasks.withType(CoberturaBaseTask) {
+            coberturaClasspath = project.configurations[ANT_CONFIGURATION_NAME]
         }
     }
 
     private void addInstrumentation(Project project, CoberturaPluginExtension projectExtension, SourceSet sourceSet) {
         // Extend the source set with cobertura stuff
-        CoberturaSourceSetExtension sourceSetExtension = sourceSet.extensions.create("cobertura", CoberturaSourceSetExtension, sourceSet)
-        ConventionMapping sourceSetConventionMapping = sourceSetExtension.conventionMapping
+        final CoberturaSourceSetExtension sourceSetExtension = sourceSet.extensions.create(CoberturaPluginExtension.NAME, CoberturaSourceSetExtension, sourceSet)
+        final ConventionMapping sourceSetConventionMapping = sourceSetExtension.conventionMapping
         sourceSetConventionMapping.with {
             map("coberturaClasspath") { projectExtension.classpath }
             map("serFile") { project.file("$project.buildDir/cobertura/$sourceSet.name/cobertura.ser") }
@@ -60,7 +85,7 @@ class CoberturaPlugin implements Plugin<Project> {
         }
 
         // Create a task to instrument this source set, wired to the extension
-        InstrumentCoberturaTask task = project.tasks.add(sourceSet.getTaskName("coberturaInstrument", null), InstrumentCoberturaTask)
+        final InstrumentCoberturaTask task = project.tasks.add(sourceSet.getTaskName("coberturaInstrument", null), InstrumentCoberturaTask)
         task.group = "Verification"
         task.description = "Instruments classes for the '${sourceSet.name}' source set"
         task.source { sourceSet.output }
