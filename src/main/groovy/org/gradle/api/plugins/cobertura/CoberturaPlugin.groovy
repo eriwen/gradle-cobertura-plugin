@@ -8,7 +8,6 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.ReportingBasePlugin
-import org.gradle.api.plugins.cobertura.tasks.CoberturaBaseTask
 import org.gradle.api.plugins.cobertura.tasks.CoberturaReportTask
 import org.gradle.api.plugins.cobertura.tasks.InstrumentCoberturaTask
 import org.gradle.api.reporting.ReportingExtension
@@ -18,20 +17,20 @@ import org.gradle.api.tasks.testing.Test
 
 class CoberturaPlugin implements Plugin<Project> {
 
-    private static final String ANT_CONFIGURATION_NAME = 'cobertura'
+    private static final String ANT_CONFIGURATION_NAME = 'coberturaAnt'
 
     void apply(final Project project) {
         project.apply(plugin: ReportingBasePlugin)
         project.apply(plugin: JavaBasePlugin)
 
-        def reportingExtension = project.extensions.getByType(ReportingExtension)
-        def extension = project.extensions.create(CoberturaPluginExtension.NAME, CoberturaPluginExtension, project)
+        final ReportingExtension reportingExtension = project.extensions.getByType(ReportingExtension)
+        final CoberturaPluginExtension extension = project.extensions.create(CoberturaPluginExtension.NAME, CoberturaPluginExtension, project)
 
         // Base for all reports
         extension.conventionMapping.map("reportsDir") { reportingExtension.file("cobertura") }
 
-        Configuration coberturaClasspath = project.configurations.add("cobertura")
-        Dependency coberturaDependency = project.dependencies.create('net.sourceforge.cobertura:cobertura:1.9.4.1')
+        Configuration coberturaClasspath = configureCoberturaConfigurations(project)
+        Dependency coberturaDependency = project.dependencies.create("net.sourceforge.cobertura:cobertura:${extension.toolVersion}")
         coberturaClasspath.dependencies.add(coberturaDependency)
         extension.classpath = coberturaClasspath
 
@@ -45,16 +44,22 @@ class CoberturaPlugin implements Plugin<Project> {
 
         // Go ahead and wire the conventional test task up, if we are being used with the java plugin
         project.plugins.withType(JavaPlugin) {
-            Test testTask = project.test
-            SourceSet mainSourceSet = project.sourceSets.main
-            extension.applyTo(testTask, mainSourceSet)
+            applyToDefaultTasks(project, extension)
         }
     }
 
-    private void configureDefaultDependencies(final Project project, final CoberturaPluginExtension extension) {
-        project.dependencies {
-            coberturaAnt "net.sourceforge.cobertura:cobertura:${extension.toolVersion}"
+    /**
+     * Creates the configurations used by plugin.
+     * @param project the project to add the configurations to
+     */
+    private Configuration configureCoberturaConfigurations(final Project project) {
+        Configuration configuration = project.configurations.add(ANT_CONFIGURATION_NAME)
+        configuration.with {
+            visible = false
+            transitive = true
+            description = 'The Cobertura ant tasks underlying the Gradle tasks.'
         }
+        configuration
     }
 
     /**
@@ -67,13 +72,7 @@ class CoberturaPlugin implements Plugin<Project> {
         extension.applyTo(project.tasks.withType(Test), mainSourceSet)
     }
 
-    private void configureTaskClasspaths(final Project project) {
-        project.tasks.withType(CoberturaBaseTask) {
-            coberturaClasspath = project.configurations[ANT_CONFIGURATION_NAME]
-        }
-    }
-
-    private void addInstrumentation(Project project, CoberturaPluginExtension projectExtension, SourceSet sourceSet) {
+    private void addInstrumentation(final Project project, final CoberturaPluginExtension projectExtension, final SourceSet sourceSet) {
         // Extend the source set with cobertura stuff
         final CoberturaSourceSetExtension sourceSetExtension = sourceSet.extensions.create(CoberturaPluginExtension.NAME, CoberturaSourceSetExtension, sourceSet)
         final ConventionMapping sourceSetConventionMapping = sourceSetExtension.conventionMapping

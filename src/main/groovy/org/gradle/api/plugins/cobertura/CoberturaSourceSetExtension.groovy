@@ -4,7 +4,6 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
 
 class CoberturaSourceSetExtension {
-
     private final SourceSet sourceSet
 
     CoberturaSourceSetExtension(SourceSet sourceSet) {
@@ -16,5 +15,4 @@ class CoberturaSourceSetExtension {
     FileCollection coberturaClasspath
     File serFile
     List<String> ignores
-
 }

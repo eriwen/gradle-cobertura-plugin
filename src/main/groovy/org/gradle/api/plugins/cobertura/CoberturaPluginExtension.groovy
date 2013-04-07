@@ -39,7 +39,7 @@ class CoberturaPluginExtension {
     void applyTo(final Test testTask, final SourceSet sourceSet) {
         CoberturaSourceSetExtension sourceSetExtension = sourceSet.cobertura
 
-        def taskExtension = testTask.extensions.create("cobertura", CoberturaTestTaskExtension)
+        def taskExtension = testTask.extensions.create("coberturaTest", CoberturaTestTaskExtension)
         ConventionMapping taskExtensionConventionMapping = taskExtension.conventionMapping
         taskExtensionConventionMapping.with {
             map("inputSerFile") { sourceSetExtension.serFile }
