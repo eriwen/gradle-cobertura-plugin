@@ -53,7 +53,7 @@ class CoberturaPlugin implements Plugin<Project> {
      * @param project the project to add the configurations to
      */
     private Configuration configureCoberturaConfigurations(final Project project) {
-        Configuration configuration = project.configurations.add(ANT_CONFIGURATION_NAME)
+        Configuration configuration = project.configurations.create(ANT_CONFIGURATION_NAME)
         configuration.with {
             visible = false
             transitive = true
@@ -84,7 +84,7 @@ class CoberturaPlugin implements Plugin<Project> {
         }
 
         // Create a task to instrument this source set, wired to the extension
-        final InstrumentCoberturaTask task = project.tasks.add(sourceSet.getTaskName("coberturaInstrument", null), InstrumentCoberturaTask)
+        final InstrumentCoberturaTask task = project.tasks.create(sourceSet.getTaskName("coberturaInstrument", null), InstrumentCoberturaTask)
         task.group = "Verification"
         task.description = "Instruments classes for the '${sourceSet.name}' source set"
         task.source { sourceSet.output }

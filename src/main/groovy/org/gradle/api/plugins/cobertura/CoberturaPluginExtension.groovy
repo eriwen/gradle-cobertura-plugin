@@ -46,7 +46,7 @@ class CoberturaPluginExtension {
             map("outputSerFile") { new File(sourceSetExtension.serFile.absolutePath[0..-5]  + "-test.ser") }
         }
 
-        def configureTask = project.tasks.add("coberturaConfigure${testTask.name.capitalize()}")
+        def configureTask = project.tasks.create("coberturaConfigure${testTask.name.capitalize()}")
         configureTask.doFirst {
             testTask.systemProperty('net.sourceforge.cobertura.datafile', taskExtension.getOutputSerFile().absolutePath)
         }
@@ -66,7 +66,7 @@ class CoberturaPluginExtension {
             }
         }
 
-        def coberturaTask = project.tasks.add("${testTask.name}CoberturaReport", CoberturaReportTask)
+        def coberturaTask = project.tasks.create("${testTask.name}CoberturaReport", CoberturaReportTask)
         coberturaTask.source { sourceSet.allSource }
 
         coberturaTask.conventionMapping.with {
