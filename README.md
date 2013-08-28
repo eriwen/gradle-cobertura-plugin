@@ -9,7 +9,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.eriwen:gradle-cobertura-plugin:1.1.0'
+        classpath 'com.eriwen:gradle-cobertura-plugin:1.1.1'
     }
 }
 
