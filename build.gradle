@@ -66,6 +66,15 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.7'
 }
 
+test {
+    forkEvery = 5
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2
+    testLogging {
+        stackTraceFilters "truncate", "groovy"
+        events "passed", "skipped", "failed"
+    }
+}
+
 artifacts {
     archives groovydocJar, sourceJar
 }
