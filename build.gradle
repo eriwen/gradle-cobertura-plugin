@@ -63,7 +63,7 @@ task groovydocJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.5'
+    gradleVersion = '1.7'
 }
 
 artifacts {
