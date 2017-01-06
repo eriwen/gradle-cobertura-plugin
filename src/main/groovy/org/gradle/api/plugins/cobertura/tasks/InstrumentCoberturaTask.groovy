@@ -24,7 +24,7 @@ class InstrumentCoberturaTask extends SourceTask {
         ant.execute {
             taskdef(name: 'cobertura-instrument', classname: "net.sourceforge.cobertura.ant.InstrumentTask")
             'cobertura-instrument'(toDir: getClassesDir(), datafile: getSerFile()) {
-                getIgnores().each { ignore(regex: it) }
+                getIgnores().each { exclude(it) }
                 getSourceClassFiles().addToAntBuilder(delegate, "fileset", FileCollection.AntType.FileSet)
             }
         }
